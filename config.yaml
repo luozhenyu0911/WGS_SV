@@ -1,0 +1,21 @@
+samples:
+    # sample or id to use for generating targets
+    id: "00114031182M22BFF2"
+    cram_path: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/20240124_EBV_Dengue/input_all"
+
+modules:
+    # Should snakemake do stlfr specific analyses, false if the library isn't of linked reads
+    mapping: True
+    
+params:
+    # paths to tools used by the pipeline
+    breakdancer="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/breakseq2/bin"
+    cnvnator="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/cnvnator/bin"
+    lumpy="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
+    manta="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
+    metasv="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
+    pindel="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
+    # reference genome
+    ref_fa="/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/database/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa"
+
+threads: 24
