@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
+# yhbatch -N 1 -n 24 -p rhenv
+source /BIGDATA2/gzfezx_shhli_2/miniconda3/etc/profile.d/conda.sh
+conda activate /BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta
 
-conda activate /home-02/zhenyuluo/anaconda3/envs/RNA-seq
-
-smk=./run.all.smk
+smk=/BIGDATA2/gzfezx_shhli_2/software/WGS_SV/run.all.smk
 echo ""
 echo "start = $(date)"
 echo "$(hostname)"
-snakemake -j 80 -pk -s ${smk} 2> snakemake.err.txt
+/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/cnvnator/bin/snakemake -j 24 -pk -s ${smk} 2> snakemake.err.txt
 echo "end = $(date)"
-# echo "last status $? $(hostname)" |mail -s "job done: $(pwd)" luozhenyu@genomics.cn 
+# echo "last status $? $(hostname)" |mail -s "job done: $(pwd)" xx.email

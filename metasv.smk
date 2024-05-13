@@ -1,7 +1,7 @@
 from pathlib import Path
 
 def get_cram(wildcards):
-    fq_path = Path(config['samples']['fq_path'])
+    fq_path = Path(config['samples']['cram_path'])
     name = config['samples']['id']
     cram_files = []
     for fp in fq_path.iterdir():
@@ -12,7 +12,7 @@ def get_cram(wildcards):
     return cram_files 
 
 def get_cram_index(wildcards):
-    fq_path = Path(config['samples']['fq_path'])
+    fq_path = Path(config['samples']['cram_path'])
     name = config['samples']['id']
     cram_files = []
     for fp in fq_path.iterdir():
@@ -47,7 +47,69 @@ rule bam_from_cram:
         "data/{id}.bam"
     threads:
         config['threads']
+    params:
+        samtools_path = config['params']['samtools']
     shell:
-        "samtools view -@ {threads} -bh {input} -o {output} && samtools index -@ {threads} {input}"
+        "{params.samtools_path}/samtools view -@ {threads} -bh {input} -o {output} && {params.samtools_path}/samtools index -@ {threads} {output}"
 
 
+# import os
+# if os.path.exists("manta/manta.vcf.log")
+#     Manta_vcf = 'manta/results/variants/diploidSV.vcf.gz'
+
+rule metaSV_merge_vcf:
+    input:
+        # manta_vcf = Manta_vcf,
+        lumpyinput = "lumpy/{id}.lumpy.vcf",
+        breakdancerinput= "breakdancer/{id}.cfg.SV.output",
+        cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
+        pindelinput= "pindel/{id}.pindel.vcf",
+        ref = REF
+    output:
+        "metasv/{id}.metasv.log"
+    params:
+        env = config['params']['metasv'],
+        threads = config['threads'],
+        sample = config['samples']['id'],
+        readlength = config['params']['read_length']
+    shell:
+        """
+        {params}/python {params}/run_metasv.py \
+            --reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} \
+            --enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} \
+            --outdir manta --workdir manta/tmp_work \
+            --breakdancer_native {input.breakdancerinput} \
+            --manta_vcf manta/results/variants/diploidSV.vcf.gz \
+            --cnvnator_vcf {input.cnvnatorinput} \
+            --lumpy_vcf {input.lumpyinput} \
+            --pindel_vcf {input.pindelinput} &> {output}
+        """
+
+rule metaSV_merge_vcf_no_pindel:
+    input:
+        # manta_vcf = Manta_vcf,
+        lumpyinput = "lumpy/{id}.lumpy.vcf",
+        breakdancerinput= "breakdancer/{id}.cfg.SV.output",
+        cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
+        # pindelinput= "pindel/{id}.pindel.vcf",
+        ref = REF
+    output:
+        "metasv/{id}.metasv_no_pindel.log"
+    params:
+        env = config['params']['metasv'],
+        threads = config['threads'],
+        sample = config['samples']['id'],
+        readlength = config['params']['read_length']
+    shell:
+        # --pindel_vcf {input.pindelinput} \
+        """
+        {params.env}/python {params.env}/run_metasv.py \
+            --reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} \
+            --enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} \
+            --outdir metasv --workdir metasv/tmp_work \
+            --breakdancer_native {input.breakdancerinput} \
+            --manta_vcf manta/results/variants/diploidSV.vcf.gz \
+            --cnvnator_vcf {input.cnvnatorinput} \
+            --lumpy_vcf {input.lumpyinput} \
+            &> {output}
+        """   

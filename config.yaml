@@ -4,18 +4,25 @@ samples:
     cram_path: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/20240124_EBV_Dengue/input_all"
 
 modules:
-    # Should snakemake do stlfr specific analyses, false if the library isn't of linked reads
-    mapping: True
+    # Should snakemake do specific analyses
+    pindel: True
     
 params:
+    smk_path: "/BIGDATA2/gzfezx_shhli_2/software/WGS_SV"
     # paths to tools used by the pipeline
-    breakdancer="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/breakseq2/bin"
-    cnvnator="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/cnvnator/bin"
-    lumpy="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
-    manta="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
-    metasv="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
-    pindel="/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
+    breakdancer: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/breakseq2/bin"
+    cnvnator: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/cnvnator/bin"
+    lumpy: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
+    manta: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
+    metasv: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
+    pindel: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
+    samtools: "/WORK/gzfezx_shhli_3/BioSoftware/local/bin"
     # reference genome
-    ref_fa="/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/database/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa"
+    ref_fa: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/database/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa"
+    # depth of bam file for calling variants
+    depth: 6
+    read_length: 150
+    # insert size for paired-end reads, 500 for the reads length of 100-150bp
+    insert_size: 500
 
 threads: 24

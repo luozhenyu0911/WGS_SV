@@ -18,3 +18,4 @@ rule breakdancer_step2:
         config['params']['breakdancer']
     shell:
         "{params}/breakdancer-max {input} > {output}"
+
