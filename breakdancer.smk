@@ -17,5 +17,5 @@ rule breakdancer_step2:
     params:
         config['params']['breakdancer']
     shell:
-        "{params}/breakdancer-max {input} > {output}"
+        "{params}/breakdancer-max {input} > {output} && mv *.insertsize_histogram* breakdancer/"
 

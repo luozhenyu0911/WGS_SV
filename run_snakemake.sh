@@ -3,7 +3,7 @@
 source /BIGDATA2/gzfezx_shhli_2/miniconda3/etc/profile.d/conda.sh
 conda activate /BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta
 
-smk=/BIGDATA2/gzfezx_shhli_2/software/WGS_SV/run.all.smk
+smk=/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/script/WGS_SV/run.all.smk
 echo ""
 echo "start = $(date)"
 echo "$(hostname)"

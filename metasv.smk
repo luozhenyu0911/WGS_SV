@@ -59,7 +59,7 @@ rule bam_from_cram:
 
 rule metaSV_merge_vcf:
     input:
-        # manta_vcf = Manta_vcf,
+        manta_vcf = "manta/{id}.manta.vcf.log",
         lumpyinput = "lumpy/{id}.lumpy.vcf",
         breakdancerinput= "breakdancer/{id}.cfg.SV.output",
         cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
@@ -74,10 +74,10 @@ rule metaSV_merge_vcf:
         readlength = config['params']['read_length']
     shell:
         """
-        {params}/python {params}/run_metasv.py \
+        {params.env}/python {params.env}/run_metasv.py \
             --reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} \
             --enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} \
-            --outdir manta --workdir manta/tmp_work \
+            --outdir metasv --workdir metasv/tmp_work \
             --breakdancer_native {input.breakdancerinput} \
             --manta_vcf manta/results/variants/diploidSV.vcf.gz \
             --cnvnator_vcf {input.cnvnatorinput} \
@@ -87,14 +87,14 @@ rule metaSV_merge_vcf:
 
 rule metaSV_merge_vcf_no_pindel:
     input:
-        # manta_vcf = Manta_vcf,
+        manta_vcf = "manta/{id}.manta.vcf.log",
         lumpyinput = "lumpy/{id}.lumpy.vcf",
         breakdancerinput= "breakdancer/{id}.cfg.SV.output",
         cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
         # pindelinput= "pindel/{id}.pindel.vcf",
         ref = REF
     output:
-        "metasv/{id}.metasv_no_pindel.log"
+        "metasv_no_pindel/{id}.SV.vcf.gz"
     params:
         env = config['params']['metasv'],
         threads = config['threads'],
@@ -106,10 +106,25 @@ rule metaSV_merge_vcf_no_pindel:
         {params.env}/python {params.env}/run_metasv.py \
             --reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} \
             --enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} \
-            --outdir metasv --workdir metasv/tmp_work \
+            --outdir metasv_no_pindel --workdir metasv_no_pindel/tmp_work \
+            --overlap_ratio 0.2 --minsvlen 50 --maxsvlen 10000000 \
             --breakdancer_native {input.breakdancerinput} \
             --manta_vcf manta/results/variants/diploidSV.vcf.gz \
             --cnvnator_vcf {input.cnvnatorinput} \
-            --lumpy_vcf {input.lumpyinput} \
-            &> {output}
+            --lumpy_vcf {input.lumpyinput} && \
+        mv metasv_no_pindel/variants.vcf.gz {output} && mv metasv_no_pindel/variants.vcf.gz.tbi {output}.tbi
         """   
+
+rule SV_SeparateFilter:
+    input:
+        "metasv_no_pindel/{id}.SV.vcf.gz"
+    output:
+        "metasv_no_pindel/{id}.SV.pass.vcf"
+    params:
+        src = config['params']['smk_path'],
+        sample = config['samples']['id'],
+        env = config['params']['python3']
+    shell:
+        """
+        {params.env} {params.src}/src/VCF_SeparateFilter.py -i {input} -p metasv_no_pindel/{params.sample}_pass -o {output}
+        """
