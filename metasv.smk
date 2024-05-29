@@ -107,7 +107,7 @@ rule metaSV_merge_vcf_no_pindel:
             --reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} \
             --enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} \
             --outdir metasv_no_pindel --workdir metasv_no_pindel/tmp_work \
-            --overlap_ratio 0.2 --minsvlen 50 --maxsvlen 10000000 \
+            --overlap_ratio 0.5 --minsvlen 50 --maxsvlen 10000000 \
             --breakdancer_native {input.breakdancerinput} \
             --manta_vcf manta/results/variants/diploidSV.vcf.gz \
             --cnvnator_vcf {input.cnvnatorinput} \
