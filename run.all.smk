@@ -11,10 +11,10 @@ def run_all_input(wildcards):
 
     run_all_files = []
     
-    run_all_files.append("lumpy/{}.lumpy.vcf".format(config['samples']['id']))
-    run_all_files.append("breakdancer/{}.cfg.SV.output".format(config['samples']['id']))
-    run_all_files.append("cnvnator/{}.cnvnator.vcf".format(config['samples']['id']))
-    run_all_files.append("manta/{}.manta.vcf.log".format(config['samples']['id']))
+    # run_all_files.append("lumpy/{}.lumpy.vcf".format(config['samples']['id']))
+    # run_all_files.append("breakdancer/{}.cfg.SV.output".format(config['samples']['id']))
+    # run_all_files.append("cnvnator/{}.cnvnator.vcf".format(config['samples']['id']))
+    # run_all_files.append("manta/{}.manta.vcf.log".format(config['samples']['id']))
 
     if config['modules']['pindel']:
         run_all_files.append("pindel/{}.pindel.vcf".format(config['samples']['id']))

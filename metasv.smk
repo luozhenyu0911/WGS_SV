@@ -87,10 +87,10 @@ rule metaSV_merge_vcf:
 
 rule metaSV_merge_vcf_no_pindel:
     input:
-        manta_vcf = "manta/{id}.manta.vcf.log",
+        manta_vcf =  "manta/{id}.manta.filtered.vcf",
         lumpyinput = "lumpy/{id}.lumpy.vcf",
         breakdancerinput= "breakdancer/{id}.cfg.SV.output",
-        cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
+        cnvnatorinput= "cnvnator/{id}.cnvnator.filtered",
         # pindelinput= "pindel/{id}.pindel.vcf",
         ref = REF
     output:
@@ -109,8 +109,8 @@ rule metaSV_merge_vcf_no_pindel:
             --outdir metasv_no_pindel --workdir metasv_no_pindel/tmp_work \
             --overlap_ratio 0.5 --minsvlen 50 --maxsvlen 10000000 \
             --breakdancer_native {input.breakdancerinput} \
-            --manta_vcf manta/results/variants/diploidSV.vcf.gz \
-            --cnvnator_vcf {input.cnvnatorinput} \
+            --manta_vcf {input.manta_vcf} \
+            --cnvnator_native {input.cnvnatorinput} \
             --lumpy_vcf {input.lumpyinput} && \
         mv metasv_no_pindel/variants.vcf.gz {output} && mv metasv_no_pindel/variants.vcf.gz.tbi {output}.tbi
         """   

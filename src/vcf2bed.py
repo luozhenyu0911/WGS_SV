@@ -21,8 +21,8 @@ def open_vcf_file(filename):
     return _vcf_f
 
 def vcf2bed(vcf_file, bed_file):
-    ENDpos =re.compile(r'\bEND=(-?\d+)\D')
-    SVLEN =re.compile(r'\bSVLEN=(-?\d+)\D')
+    ENDpos =re.compile(r'\bEND=(-?\d+)\b')
+    SVLEN =re.compile(r'\bSVLEN=(-?\d+)\b')
     with open(bed_file, 'w') as bedf:
     # with open(vcf_file, 'r') as vcff:
         for line in vcf_file:

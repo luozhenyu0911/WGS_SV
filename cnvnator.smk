@@ -73,8 +73,9 @@ rule cnvnator_step3:
         "cnvnator/{id}.cnvnator.vcf"
     params:
         env = config["params"]["cnvnator"],
-        sample = config['samples']['id'] 
+        sample = config['samples']['id'],
+        chr = config["params"]["ref_fa_chr"]
     shell:
         "{params.env}/perl {params.env}/cnvnator2VCF.pl -prefix {params.sample} -reference {input.ref} "
-        "{input.cnvroot} /BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/database/GRCh38/chr > {output}"
+        "{input.cnvroot} {params.chr} > {output}"
 
