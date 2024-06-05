@@ -57,14 +57,15 @@ rule bam_from_cram:
 # if os.path.exists("manta/manta.vcf.log")
 #     Manta_vcf = 'manta/results/variants/diploidSV.vcf.gz'
 
+def get_merged_vcf(wildcards):
+    if config['params']['depth'] == 7:
+        return "lumpy/{id}.lumpy.vcf".format(id = config['samples']['id']), REF
+    elif config['params']['depth'] == 30:
+        return "manta/{id}.manta.sv.vcf".format(id = config['samples']['id']), REF
+
 rule metaSV_merge_vcf:
     input:
-        manta_vcf = "manta/{id}.manta.sv.vcf",
-        lumpyinput = "lumpy/{id}.lumpy.vcf",
-        # breakdancerinput= "breakdancer/{id}.cfg.SV.output",
-        # cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
-        # pindelinput= "pindel/{id}.pindel.vcf",
-        ref = REF
+        get_merged_vcf
     output:
         "metasv/{id}.metasv.vcf.gz"
     params:
@@ -76,44 +77,45 @@ rule metaSV_merge_vcf:
         if config['params']['depth'] == 7:
             shell(
                 "{params.env}/python {params.env}/run_metasv.py "
-                    "--reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} "
+                    "--reference {input[1]} --sample {params.sample} --disable_assembly --num_threads {params.threads} "
                     "--enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} "
                     "--minsvlen 50 --maxsvlen 10000000 "
                     "--outdir metasv --workdir metasv/tmp_work "
-                    "--lumpy_vcf {input.lumpyinput} && "
+                    "--lumpy_vcf {input[0]} && "
                 "mv metasv/variants.vcf.gz {output}")
         elif config['params']['depth'] == 30:
             shell(
                 "{params.env}/python {params.env}/run_metasv.py "
-                    "--reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} "
+                    "--reference {input[1]} --sample {params.sample} --disable_assembly --num_threads {params.threads} "
                     "--enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} "
                     "--minsvlen 50 --maxsvlen 10000000 "
                     "--outdir metasv --workdir metasv/tmp_work "
-                    "--manta_vcf {input.manta_vcf}  && "
+                    "--manta_vcf {input[0]}  && "
                 "mv metasv/variants.vcf.gz {output} && "
                 "mv metasv/variants.vcf.gz.tbi {output}.tbi")
 
+def raw_genotype_vcf(wildcards):
+    if config['params']['depth'] == 7:
+        return "lumpy/{id}.genotyped.vcf".format(id = config['samples']['id']), "metasv/{id}.metasv.vcf.gz".format(id = config['samples']['id'])
+    elif config['params']['depth'] == 30:
+        return "manta/{id}.manta.sv.vcf".format(id = config['samples']['id']), "metasv/{id}.metasv.vcf.gz".format(id = config['samples']['id'])
+
 rule modify_genotype:
     input:
-        vcf = "metasv/{id}.metasv.vcf.gz",
-        lumpy_vcf = "lumpy/{id}.genotyped.vcf",
-        manta_vcf = "manta/{id}.manta.sv.vcf"
+        raw_genotype_vcf
     output:
         "metasv/{id}.metasv.genotype.vcf"
     params:
         python = config['params']['python3'],
         src = config['params']['smk_path']
-    run:
-        if config['params']['depth'] == 7:
-            shell("{params.python} {params.src}/src/modify_genotype.py -r {input.lumpy_vcf} -m {input.vcf} -o {output}")
-        elif config['params']['depth'] == 30:
-            shell("{params.python} {params.src}/src/modify_genotype.py -r {input.manta_vcf} -m {input.vcf} -o {output}")
+    shell: 
+        "{params.python} {params.src}/src/modify_genotype.py -r {input[0]} -m {input[1]} -o {output}"
 
 rule split_vcf_by_svtype:
     input:
         "metasv/{id}.metasv.genotype.vcf".format(id = config['samples']['id'])
     output:
-        expand("metasv/{id}_{svtype}.vcf", id = config['samples']['id'], svtype=["DEL", "DUP", "INV", "INS"])
+        expand("metasv/{id}_{svtype}.vcf", id = config['samples']['id'], svtype=["DEL", "DUP"])
     params:
         sample = config['samples']['id'],
         python = config['params']['python3'],

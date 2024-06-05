@@ -52,8 +52,8 @@ def replace_GT_info(metasv_vcf, raw_dict, output_vcf):
             CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO, FORMAT, sample = line.strip().split("\t")
             if CHROM in raw_dict:
                 if POS in raw_dict[CHROM]:
-                    FORMAT2 = raw_dict[CHROM][str(POS)][0]
-                    sample2 = raw_dict[CHROM][str(POS)][1]
+                    FORMAT2 = raw_dict[CHROM][str(POS)][0].split(":")[0]
+                    sample2 = raw_dict[CHROM][str(POS)][1].split(":")[0]
                     print(CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO, FORMAT2, sample2, sep="\t", file=outf)
     outf.close()
     vcff.close()

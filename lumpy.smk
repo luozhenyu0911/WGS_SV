@@ -61,3 +61,23 @@ rule lumpy_step4_run_lumpy:
         {params.lumpy_path}/lumpyexpress -B {input.raw_bam} -S {input.splitters} -D {input.discordants} -o {output}
         """
 
+rule lumpy_genotyped_vcf:
+    input:
+        vcf = "lumpy/{id}.lumpy.vcf",
+        bam = "data/{id}.bam"
+    output:
+        "lumpy/{id}.genotyped.vcf"
+    params:
+        env = config["params"]["breakdancer"],
+        threads = config["threads"],
+        sample = config["samples"]["id"]
+    shell:
+        """
+        vcftools --vcf {input.vcf} \
+        --indv {params.sample} --recode --recode-INFO-all  \
+        --out lumpy/{params.sample} && \
+        {params.env}/svtyper \
+        -i lumpy/{params.sample}.recode.vcf \
+        -B {input.bam} \
+        -o {output}
+        """
