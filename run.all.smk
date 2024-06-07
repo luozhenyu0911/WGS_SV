@@ -10,20 +10,10 @@ SAMPLE = config['samples']['id']
 def run_all_input(wildcards):
 
     run_all_files = []
-    
-    # run_all_files.append("lumpy/{}.lumpy.vcf".format(config['samples']['id']))
-    # run_all_files.append("breakdancer/{}.cfg.SV.output".format(config['samples']['id']))
-    # run_all_files.append("cnvnator/{}.cnvnator.vcf".format(config['samples']['id']))
-    # run_all_files.append("manta/{}.manta.vcf.log".format(config['samples']['id']))
-
-    if config['modules']['pindel']:
-        run_all_files.append("pindel/{}.pindel.vcf".format(config['samples']['id']))
-        run_all_files.append("metasv/{}.metasv.log".format(config['samples']['id']))
-        run_all_files.append("metasv_no_pindel/{}.SV.vcf.gz".format(config['samples']['id']))
-    else:
-        run_all_files.append("metasv_no_pindel/{}.SV.vcf.gz".format(config['samples']['id']))
-        run_all_files.append("metasv_no_pindel/{}.SV.pass.vcf".format(config['samples']['id']))
-        run_all_files.append("annotation/{}.SV.pass.annotation.txt".format(config['samples']['id']))
+    run_all_files.append("metasv/{id}.manta.gt.vcf.gz".format(id = config['samples']['id']))
+    run_all_files.append("metasv/{id}.lumpy.gt.vcf.gz".format(id = config['samples']['id']))
+    run_all_files.append("metasv/{id}.SV.vcf.gz".format(id = config['samples']['id']))
+    run_all_files.append("{id}_have_done.txt".format(id = config['samples']['id']))
     return run_all_files
 
 
@@ -37,6 +27,6 @@ include: smk_path+"/breakdancer.smk"
 include: smk_path+"/cnvnator.smk"
 include: smk_path+"/manta.smk"
 include: smk_path+"/metasv.smk"
-include: smk_path+"/pindel.smk"
+# include: smk_path+"/pindel.smk"
 include: smk_path+"/lumpy.smk"
-include: smk_path+"/annotation.smk"
+# include: smk_path+"/annotation.smk"

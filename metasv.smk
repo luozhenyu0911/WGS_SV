@@ -53,78 +53,81 @@ rule bam_from_cram:
         "{params.samtools_path}/samtools view -@ {threads} -bh {input} -o {output} && {params.samtools_path}/samtools index -@ {threads} {output}"
 
 
-# import os
-# if os.path.exists("manta/manta.vcf.log")
-#     Manta_vcf = 'manta/results/variants/diploidSV.vcf.gz'
-
 rule metaSV_merge_vcf:
     input:
-        manta_vcf = "manta/{id}.manta.vcf.log",
-        lumpyinput = "lumpy/{id}.lumpy.vcf",
+        manta_vcf = "manta/{id}.manta.vcf.gz",
+        lumpyinput = "lumpy/{id}.genotyped.vcf",
         breakdancerinput= "breakdancer/{id}.cfg.SV.output",
         cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
-        pindelinput= "pindel/{id}.pindel.vcf",
         ref = REF
     output:
-        "metasv/{id}.metasv.log"
+        metasv_vcf = "metasv/{id}.SV.vcf.gz"
+        # breakdancer = "metasv/breakdancer.vcf.gz",
+        # manta = "metasv/manta.vcf.gz",
+        # cnvnator = "metasv/cnvnator.vcf.gz",
+        # lumpy = "metasv/lumpy.vcf.gz"
     params:
         env = config['params']['metasv'],
         threads = config['threads'],
         sample = config['samples']['id'],
         readlength = config['params']['read_length']
-    shell:
-        """
-        {params.env}/python {params.env}/run_metasv.py \
-            --reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} \
-            --enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} \
-            --outdir metasv --workdir metasv/tmp_work \
-            --breakdancer_native {input.breakdancerinput} \
-            --manta_vcf manta/results/variants/diploidSV.vcf.gz \
-            --cnvnator_vcf {input.cnvnatorinput} \
-            --lumpy_vcf {input.lumpyinput} \
-            --pindel_vcf {input.pindelinput} &> {output}
-        """
+    run:
+        shell(
+        "{params.env}/python {params.env}/run_metasv.py "
+            "--reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} "
+            "--enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} "
+            "--outdir metasv --workdir metasv/tmp_work "
+            "--overlap_ratio 0.5 --minsvlen 50 --maxsvlen 10000000 "
+            "--breakdancer_native {input.breakdancerinput} "
+            "--manta_vcf {input.manta_vcf} "
+            "--cnvnator_vcf {input.cnvnatorinput} "
+            "--lumpy_vcf {input.lumpyinput} && "
+        "mv metasv/variants.vcf.gz {output.metasv_vcf} && mv metasv/variants.vcf.gz.tbi {output.metasv_vcf}.tbi")
 
-rule metaSV_merge_vcf_no_pindel:
+rule add_genotype_to_metasv_lumpy:
     input:
-        manta_vcf =  "manta/{id}.manta.filtered.vcf",
-        lumpyinput = "lumpy/{id}.lumpy.vcf",
-        breakdancerinput= "breakdancer/{id}.cfg.SV.output",
-        cnvnatorinput= "cnvnator/{id}.cnvnator.filtered",
-        # pindelinput= "pindel/{id}.pindel.vcf",
-        ref = REF
+        lumpy_vcf = "lumpy/{id}.genotyped.vcf",
+        # modify_vcf = "metasv/lumpy.vcf.gz",
+        metasv_vcf = "metasv/{id}.SV.vcf.gz"
     output:
-        "metasv_no_pindel/{id}.SV.vcf.gz"
+        "metasv/{id}.lumpy.gt.vcf.gz"
     params:
-        env = config['params']['metasv'],
-        threads = config['threads'],
-        sample = config['samples']['id'],
-        readlength = config['params']['read_length']
+        python = config['params']['python3'],
+        src = config['params']['smk_path']
     shell:
-        # --pindel_vcf {input.pindelinput} \
-        """
-        {params.env}/python {params.env}/run_metasv.py \
-            --reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} \
-            --enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} \
-            --outdir metasv_no_pindel --workdir metasv_no_pindel/tmp_work \
-            --overlap_ratio 0.5 --minsvlen 50 --maxsvlen 10000000 \
-            --breakdancer_native {input.breakdancerinput} \
-            --manta_vcf {input.manta_vcf} \
-            --cnvnator_native {input.cnvnatorinput} \
-            --lumpy_vcf {input.lumpyinput} && \
-        mv metasv_no_pindel/variants.vcf.gz {output} && mv metasv_no_pindel/variants.vcf.gz.tbi {output}.tbi
-        """   
+        "{params.python} {params.src}/src/modify_genotype.py -r {input.lumpy_vcf} -m metasv/lumpy.vcf.gz -o {output}"
 
-rule SV_SeparateFilter:
+rule add_genotype_to_metasv_manta:
     input:
-        "metasv_no_pindel/{id}.SV.vcf.gz"
+        manta_vcf = "manta/{id}.manta.vcf.gz",
+        # modify_vcf = "metasv/manta.vcf.gz",
+        metasv_vcf = "metasv/{id}.SV.vcf.gz"
     output:
-        "metasv_no_pindel/{id}.SV.pass.vcf"
+        "metasv/{id}.manta.gt.vcf.gz"
     params:
-        src = config['params']['smk_path'],
-        sample = config['samples']['id'],
-        env = config['params']['python3']
+        python = config['params']['python3'],
+        src = config['params']['smk_path']
     shell:
-        """
-        {params.env} {params.src}/src/VCF_SeparateFilter.py -i {input} -p metasv_no_pindel/{params.sample}_pass -o {output}
-        """
+        "{params.python} {params.src}/src/modify_genotype.py -r {input.manta_vcf} -m metasv/manta.vcf.gz -o {output}"
+
+rule done:
+    input:
+        "metasv/{id}.SV.vcf.gz",
+        "metasv/{id}.lumpy.gt.vcf.gz",
+        "metasv/{id}.manta.gt.vcf.gz"
+    output:
+        "{id}_have_done.txt"
+    shell:
+        "touch {output}"
+# rule split_vcf_by_svtype:
+#     input:
+#         "metasv/{id}.metasv.genotype.vcf".format(id = config['samples']['id'])
+#     output:
+#         expand("metasv/{id}_{svtype}.vcf", id = config['samples']['id'], svtype=["DEL", "DUP", "INV", "INS"])
+#     params:
+#         sample = config['samples']['id'],
+#         python = config['params']['python3'],
+#         src = config['params']['smk_path']
+#     run:
+#         shell(
+#             "{params.python} {params.src}/src/split_vcf_bysvtype.py {input} metasv/{params.sample}")

@@ -52,22 +52,22 @@ rule cnvnator_step2:
         {params.env}/cnvnator -root {input.root} -call {params.bin_size} -ngc > {output}
         """
 
-rule cnvnator_filter:
-    input:
-        "cnvnator/{id}.cnvnator"
-    output:
-        "cnvnator/{id}.cnvnator.filtered"
-    params:
-        python3 = config["params"]["python3"],
-        smk_path = config["params"]["smk_path"]
-    shell:
-        """
-        {params.python3} {params.smk_path}/src/cnvnator_filter.py {input} {output}
-        """
+# rule cnvnator_filter:
+#     input:
+#         "cnvnator/{id}.cnvnator"
+#     output:
+#         "cnvnator/{id}.cnvnator.filtered"
+#     params:
+#         python3 = config["params"]["python3"],
+#         smk_path = config["params"]["smk_path"]
+#     shell:
+#         """
+#         {params.python3} {params.smk_path}/src/cnvnator_filter.py {input} {output}
+#         """
 
 rule cnvnator_step3:
     input:
-        cnvroot = "cnvnator/{id}.cnvnator.filtered",
+        cnvroot = "cnvnator/{id}.cnvnator",
         ref = REF
     output:
         "cnvnator/{id}.cnvnator.vcf"
