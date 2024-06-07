@@ -56,7 +56,7 @@ rule bam_from_cram:
 rule metaSV_merge_vcf:
     input:
         manta_vcf = "manta/{id}.manta.vcf.gz",
-        lumpyinput = "lumpy/{id}.genotyped.vcf",
+        lumpyinput ="lumpy/{id}.lumpy.vcf",
         breakdancerinput= "breakdancer/{id}.cfg.SV.output",
         cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
         ref = REF
@@ -117,8 +117,10 @@ rule done:
         "metasv/{id}.manta.gt.vcf.gz"
     output:
         "{id}_have_done.txt"
+    params:
+        sample = config['samples']['id']
     shell:
-        "touch {output}"
+        "echo {params.sample} have done. > {output}"
 # rule split_vcf_by_svtype:
 #     input:
 #         "metasv/{id}.metasv.genotype.vcf".format(id = config['samples']['id'])
