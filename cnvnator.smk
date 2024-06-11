@@ -26,7 +26,7 @@ rule cnvnator_step1:
         bam = "data/{id}.bam",
         ref = REF
     output:
-        "cnvnator/{id}.root"
+        "{id}/cnvnator/{id}.root"
     params:
         config["params"]["cnvnator"]
     shell:
@@ -34,10 +34,10 @@ rule cnvnator_step1:
 
 rule cnvnator_step2:
     input:
-        root = "cnvnator/{id}.root",
+        root = "{id}/cnvnator/{id}.root",
         ref = REF
     output:
-        "cnvnator/{id}.cnvnator"
+        "{id}/cnvnator/{id}.cnvnator"
     params:
         env = config["params"]["cnvnator"],
         bin_size = bin_size
@@ -67,15 +67,15 @@ rule cnvnator_step2:
 
 rule cnvnator_step3:
     input:
-        cnvroot = "cnvnator/{id}.cnvnator",
+        cnvroot = "{id}/cnvnator/{id}.cnvnator",
         ref = REF
     output:
-        "cnvnator/{id}.cnvnator.vcf"
+        "{id}/cnvnator/{id}.cnvnator.vcf"
     params:
         env = config["params"]["cnvnator"],
-        sample = config['samples']['id'],
+        # sample = config['samples']['id'],
         chr = config["params"]["ref_fa_chr"]
     shell:
-        "{params.env}/perl {params.env}/cnvnator2VCF.pl -prefix {params.sample} -reference {input.ref} "
+        "{params.env}/perl {params.env}/cnvnator2VCF.pl -prefix {wildcards.id} -reference {input.ref} "
         "{input.cnvroot} {params.chr} > {output}"
 

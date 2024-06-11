@@ -2,7 +2,9 @@ from pathlib import Path
 
 def get_cram(wildcards):
     fq_path = Path(config['samples']['cram_path'])
-    name = config['samples']['id']
+    # for name in config['samples']['id']:
+    # name = config['samples']['id']
+    name = wildcards.id
     cram_files = []
     for fp in fq_path.iterdir():
         # add the fastq file to the files list if it matches
@@ -13,7 +15,9 @@ def get_cram(wildcards):
 
 def get_cram_index(wildcards):
     fq_path = Path(config['samples']['cram_path'])
-    name = config['samples']['id']
+    # for name in config['samples']['id']:
+    # name = config['samples']['id']
+    name = wildcards.id
     cram_files = []
     for fp in fq_path.iterdir():
         # add the fastq file to the files list if it matches 
@@ -55,13 +59,13 @@ rule bam_from_cram:
 
 rule metaSV_merge_vcf:
     input:
-        manta_vcf = "manta/{id}.manta.vcf.gz",
-        lumpyinput ="lumpy/{id}.lumpy.vcf",
-        breakdancerinput= "breakdancer/{id}.cfg.SV.output",
-        cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
+        manta_vcf = "{id}/manta/{id}.manta.vcf.gz",
+        lumpyinput ="{id}/lumpy/{id}.lumpy.vcf",
+        breakdancerinput= "{id}/breakdancer/{id}.cfg.SV.output",
+        cnvnatorinput= "{id}/cnvnator/{id}.cnvnator.vcf",
         ref = REF
     output:
-        metasv_vcf = "metasv/{id}.SV.vcf.gz"
+        metasv_vcf = "{id}/metasv/{id}.SV.vcf.gz"
         # breakdancer = "metasv/breakdancer.vcf.gz",
         # manta = "metasv/manta.vcf.gz",
         # cnvnator = "metasv/cnvnator.vcf.gz",
@@ -69,58 +73,61 @@ rule metaSV_merge_vcf:
     params:
         env = config['params']['metasv'],
         threads = config['threads'],
-        sample = config['samples']['id'],
+        # sample = config['samples']['id'],
         readlength = config['params']['read_length']
     run:
         shell(
         "{params.env}/python {params.env}/run_metasv.py "
-            "--reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} "
+            "--reference {input.ref} --sample {wildcards.id} --disable_assembly --num_threads {params.threads} "
             "--enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} "
-            "--outdir metasv --workdir metasv/tmp_work "
+            "--outdir {wildcards.id}/metasv --workdir {wildcards.id}/metasv/tmp_work "
             "--overlap_ratio 0.5 --minsvlen 50 --maxsvlen 10000000 "
             "--breakdancer_native {input.breakdancerinput} "
             "--manta_vcf {input.manta_vcf} "
             "--cnvnator_vcf {input.cnvnatorinput} "
             "--lumpy_vcf {input.lumpyinput} && "
-        "mv metasv/variants.vcf.gz {output.metasv_vcf} && mv metasv/variants.vcf.gz.tbi {output.metasv_vcf}.tbi")
+        "mv {wildcards.id}/metasv/variants.vcf.gz {output.metasv_vcf} && mv {wildcards.id}/metasv/variants.vcf.gz.tbi {output.metasv_vcf}.tbi")
 
 rule add_genotype_to_metasv_lumpy:
     input:
-        lumpy_vcf = "lumpy/{id}.genotyped.vcf",
+        lumpy_vcf = "{id}/lumpy/{id}.genotyped.vcf",
         # modify_vcf = "metasv/lumpy.vcf.gz",
-        metasv_vcf = "metasv/{id}.SV.vcf.gz"
+        metasv_vcf = "{id}/metasv/{id}.SV.vcf.gz"
     output:
-        "metasv/{id}.lumpy.gt.vcf.gz"
+        "{id}/metasv/{id}.lumpy.gt.vcf.gz"
     params:
         python = config['params']['python3'],
         src = config['params']['smk_path']
     shell:
-        "{params.python} {params.src}/src/modify_genotype.py -r {input.lumpy_vcf} -m metasv/lumpy.vcf.gz -o {output}"
+        "{params.python} {params.src}/src/modify_genotype.py -r {input.lumpy_vcf} -m {wildcards.id}/metasv/lumpy.vcf.gz -o {output}"
 
 rule add_genotype_to_metasv_manta:
     input:
-        manta_vcf = "manta/{id}.manta.vcf.gz",
+        manta_vcf = "{id}/manta/{id}.manta.vcf.gz",
         # modify_vcf = "metasv/manta.vcf.gz",
-        metasv_vcf = "metasv/{id}.SV.vcf.gz"
+        metasv_vcf = "{id}/metasv/{id}.SV.vcf.gz"
     output:
-        "metasv/{id}.manta.gt.vcf.gz"
+        "{id}/metasv/{id}.manta.gt.vcf.gz"
     params:
         python = config['params']['python3'],
         src = config['params']['smk_path']
     shell:
-        "{params.python} {params.src}/src/modify_genotype.py -r {input.manta_vcf} -m metasv/manta.vcf.gz -o {output}"
+        "{params.python} {params.src}/src/modify_genotype.py -r {input.manta_vcf} -m {wildcards.id}/metasv/manta.vcf.gz -o {output}"
 
-rule done:
+
+rule rm_bam_done:
     input:
-        "metasv/{id}.SV.vcf.gz",
-        "metasv/{id}.lumpy.gt.vcf.gz",
-        "metasv/{id}.manta.gt.vcf.gz"
+        "{id}/metasv/{id}.SV.vcf.gz",
+        "{id}/metasv/{id}.lumpy.gt.vcf.gz",
+        "{id}/metasv/{id}.manta.gt.vcf.gz"
     output:
-        "{id}_have_done.txt"
-    params:
-        sample = config['samples']['id']
+        "{id}/{id}_have_done.txt"
+    # params:
+        # sample = config['samples']['id']
     shell:
-        "echo {params.sample} have done. > {output}"
+        "rm {wildcards.id}/lumpy/{wildcards.id}.*.bam data/{wildcards.id}.bam && echo {wildcards.id} have done. > {output}"
+
+
 # rule split_vcf_by_svtype:
 #     input:
 #         "metasv/{id}.metasv.genotype.vcf".format(id = config['samples']['id'])

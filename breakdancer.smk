@@ -3,7 +3,7 @@ rule breakdancer_step1:
     input:
         "data/{id}.bam"
     output:
-        "breakdancer/{id}.cfg"
+        "{id}/breakdancer/{id}.cfg"
     params:
         config['params']['breakdancer']
     shell:
@@ -11,11 +11,11 @@ rule breakdancer_step1:
 
 rule breakdancer_step2:
     input:
-        "breakdancer/{id}.cfg"
+        "{id}/breakdancer/{id}.cfg"
     output:
-        "breakdancer/{id}.cfg.SV.output"
+        "{id}/breakdancer/{id}.cfg.SV.output"
     params:
         config['params']['breakdancer']
     shell:
-        "{params}/breakdancer-max {input} > {output} && mv *.insertsize_histogram* breakdancer/"
+        "{params}/breakdancer-max {input} > {output} && mv {wildcards.id}*.insertsize_histogram* {wildcards.id}/breakdancer/"
 

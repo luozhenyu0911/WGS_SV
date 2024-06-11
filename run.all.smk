@@ -4,16 +4,16 @@ configfile: "config.yaml"
 # Define the ref based on the config file
 # Sort of acts like a global variable so you don't need to always type the whole thing
 REF = config['params']['ref_fa']
-SAMPLE = config['samples']['id']
+SAMPLE_list = config['samples']['id_list']
 
 # define a function to return target files based on config settings
 def run_all_input(wildcards):
 
     run_all_files = []
-    run_all_files.append("metasv/{id}.manta.gt.vcf.gz".format(id = config['samples']['id']))
-    run_all_files.append("metasv/{id}.lumpy.gt.vcf.gz".format(id = config['samples']['id']))
-    run_all_files.append("metasv/{id}.SV.vcf.gz".format(id = config['samples']['id']))
-    run_all_files.append("{id}_have_done.txt".format(id = config['samples']['id']))
+    run_all_files.extend([f'{id}/metasv/{id}.manta.gt.vcf.gz' for id in SAMPLE_list])
+    run_all_files.extend([f'{id}/metasv/{id}.lumpy.gt.vcf.gz' for id in SAMPLE_list])
+    run_all_files.extend([f'{id}/metasv/{id}.SV.vcf.gz' for id in SAMPLE_list])
+    run_all_files.extend([f'{id}/{id}_have_done.txt' for id in SAMPLE_list])
     return run_all_files
 
 

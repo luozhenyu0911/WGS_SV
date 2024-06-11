@@ -1,18 +1,18 @@
 
 rule manta_step1_configmanta:
     input:
-        bam = "data/{}.bam".format(config['samples']['id']),
+        bam = "data/{id}.bam",#.format(config['samples']['id']),
         ref = REF 
     output:
-        "manta/{id}.manta.vcf.gz"
+        "{id}/manta/{id}.manta.vcf.gz"
     params:
         config["params"]['manta']
     threads:
         24
     shell:
         """
-        {params}/python {params}/configManta.py --bam {input.bam} --referenceFasta {input.ref} --runDir manta/ && \
-        {params}/python manta/runWorkflow.py -j 24 && cp manta/results/variants/diploidSV.vcf.gz {output}
+        {params}/python {params}/configManta.py --bam {input.bam} --referenceFasta {input.ref} --runDir {wildcards.id}/manta/ && \
+        {params}/python {wildcards.id}/manta/runWorkflow.py -j 24 && cp {wildcards.id}/manta/results/variants/diploidSV.vcf.gz {output}
         """
 # rule manta_step2_filter:
 #     input:

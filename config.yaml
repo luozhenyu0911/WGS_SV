@@ -1,6 +1,6 @@
 samples:
     # sample or id to use for generating targets
-    id: "HG002_30X"
+    id_list: ["HG002_30X"]
     cram_path: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/20240124_EBV_Dengue/input_all"
 
 modules:
