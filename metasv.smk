@@ -59,7 +59,7 @@ rule bam_from_cram:
 
 rule metaSV_merge_vcf:
     input:
-        manta_vcf = "{id}/manta/{id}.manta.vcf.gz",
+        manta_vcf = "{id}/manta/{id}.manta.sv.vcf",
         lumpyinput ="{id}/lumpy/{id}.lumpy.vcf",
         breakdancerinput= "{id}/breakdancer/{id}.cfg.SV.output",
         cnvnatorinput= "{id}/cnvnator/{id}.cnvnator.vcf",
@@ -103,7 +103,7 @@ rule add_genotype_to_metasv_lumpy:
 
 rule add_genotype_to_metasv_manta:
     input:
-        manta_vcf = "{id}/manta/{id}.manta.vcf.gz",
+        manta_vcf = "{id}/manta/{id}.manta.sv.vcf",
         # modify_vcf = "metasv/manta.vcf.gz",
         metasv_vcf = "{id}/metasv/{id}.SV.vcf.gz"
     output:
