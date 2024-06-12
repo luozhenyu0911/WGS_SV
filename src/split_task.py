@@ -17,10 +17,12 @@ def split_task(task_file, num_tasks):
     for i, chunk in enumerate(chunks):
         with open(f'{dirname}/work.{i+1}.sh', 'w') as f:
             f.write(f'#!/bin/bash\n')
+            f.write(f'# yhbatch -N 1 -n 24 -p rhenv\n')
             for task in chunk:
                 f.write(f'{task}\n')
     with open(f'{dirname}/work.{num_tasks+1}.sh', 'w') as f:
         f.write(f'#!/bin/bash\n')
+        f.write(f'# yhbatch -N 1 -n 24 -p rhenv\n')
         for task in tasks[num_tasks*chunk_size:]:
             f.write(f'{task}\n')
 

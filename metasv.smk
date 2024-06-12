@@ -27,7 +27,7 @@ rule link_cram:
     input:
         get_cram
     output:
-        "data/{id}.cram"
+        "{PWD}/data/{id}.cram"
     run:
         shell("ln -s {input} {output}")
 
@@ -35,16 +35,16 @@ rule link_cram_index:
     input:
         get_cram_index
     output:
-        "data/{id}.cram.crai"
+        "{PWD}/data/{id}.cram.crai"
     run:
         shell("ln -s {input} {output}")
 
 # convert the cram file to bam file
 rule bam_from_cram:
     input:
-        "data/{id}.cram"
+        "{PWD}/data/{id}.cram"
     output:
-        "data/{id}.bam"
+        "{PWD}/data/{id}.bam"
     threads:
         config['threads']
     params:
@@ -55,13 +55,13 @@ rule bam_from_cram:
 
 rule metaSV_merge_vcf:
     input:
-        manta_vcf = "manta/{id}.manta.vcf.gz",
-        lumpyinput ="lumpy/{id}.lumpy.vcf",
-        breakdancerinput= "breakdancer/{id}.cfg.SV.output",
-        cnvnatorinput= "cnvnator/{id}.cnvnator.vcf",
+        manta_vcf = "{PWD}/manta/{id}.manta.sv.vcf",
+        lumpyinput ="{PWD}/lumpy/{id}.lumpy.vcf",
+        breakdancerinput= "{PWD}/breakdancer/{id}.cfg.SV.output",
+        cnvnatorinput= "{PWD}/cnvnator/{id}.cnvnator.vcf",
         ref = REF
     output:
-        metasv_vcf = "metasv/{id}.SV.vcf.gz"
+        metasv_vcf = "{PWD}/metasv/{id}.SV.vcf.gz"
         # breakdancer = "metasv/breakdancer.vcf.gz",
         # manta = "metasv/manta.vcf.gz",
         # cnvnator = "metasv/cnvnator.vcf.gz",
@@ -74,9 +74,9 @@ rule metaSV_merge_vcf:
     run:
         shell(
         "{params.env}/python {params.env}/run_metasv.py "
-            "--reference {input.ref} --sample {params.sample} --disable_assembly --num_threads {params.threads} "
+            "--reference {input.ref} --sample {wildcards.PWD}/{params.sample} --disable_assembly --num_threads {params.threads} "
             "--enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} "
-            "--outdir metasv --workdir metasv/tmp_work "
+            "--outdir {wildcards.PWD}/metasv --workdir {wildcards.PWD}/metasv/tmp_work "
             "--overlap_ratio 0.5 --minsvlen 50 --maxsvlen 10000000 "
             "--breakdancer_native {input.breakdancerinput} "
             "--manta_vcf {input.manta_vcf} "
@@ -86,41 +86,41 @@ rule metaSV_merge_vcf:
 
 rule add_genotype_to_metasv_lumpy:
     input:
-        lumpy_vcf = "lumpy/{id}.genotyped.vcf",
+        lumpy_vcf = "{PWD}/lumpy/{id}.genotyped.vcf",
         # modify_vcf = "metasv/lumpy.vcf.gz",
-        metasv_vcf = "metasv/{id}.SV.vcf.gz"
+        metasv_vcf = "{PWD}/metasv/{id}.SV.vcf.gz"
     output:
-        "metasv/{id}.lumpy.gt.vcf.gz"
+        "{PWD}/metasv/{id}.lumpy.gt.vcf.gz"
     params:
         python = config['params']['python3'],
         src = config['params']['smk_path']
     shell:
-        "{params.python} {params.src}/src/modify_genotype.py -r {input.lumpy_vcf} -m metasv/lumpy.vcf.gz -o {output}"
+        "{params.python} {params.src}/src/modify_genotype.py -r {input.lumpy_vcf} -m {wildcards.PWD}/metasv/lumpy.vcf.gz -o {output}"
 
 rule add_genotype_to_metasv_manta:
     input:
-        manta_vcf = "manta/{id}.manta.vcf.gz",
+        manta_vcf = "{PWD}/manta/{id}.manta.sv.vcf",
         # modify_vcf = "metasv/manta.vcf.gz",
-        metasv_vcf = "metasv/{id}.SV.vcf.gz"
+        metasv_vcf = "{PWD}/metasv/{id}.SV.vcf.gz"
     output:
-        "metasv/{id}.manta.gt.vcf.gz"
+        "{PWD}/metasv/{id}.manta.gt.vcf.gz"
     params:
         python = config['params']['python3'],
         src = config['params']['smk_path']
     shell:
-        "{params.python} {params.src}/src/modify_genotype.py -r {input.manta_vcf} -m metasv/manta.vcf.gz -o {output}"
+        "{params.python} {params.src}/src/modify_genotype.py -r {input.manta_vcf} -m {wildcards.PWD}/metasv/manta.vcf.gz -o {output}"
 
 rule done:
     input:
-        "metasv/{id}.SV.vcf.gz",
-        "metasv/{id}.lumpy.gt.vcf.gz",
-        "metasv/{id}.manta.gt.vcf.gz"
+        "{PWD}/metasv/{id}.SV.vcf.gz",
+        "{PWD}/metasv/{id}.lumpy.gt.vcf.gz",
+        "{PWD}/metasv/{id}.manta.gt.vcf.gz"
     output:
-        "{id}_have_done.txt"
+        "{PWD}/{id}_have_done.txt"
     params:
         sample = config['samples']['id']
     shell:
-        "echo {params.sample} have done. > {output}"
+        "rm {wildcards.PWD}/data/{wildcards.id}.bam* {wildcards.PWD}/lumpy/{wildcards.id}.*.bam && echo {params.sample} have done. > {output}"
 # rule split_vcf_by_svtype:
 #     input:
 #         "metasv/{id}.metasv.genotype.vcf".format(id = config['samples']['id'])

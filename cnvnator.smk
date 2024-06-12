@@ -23,10 +23,10 @@ else:
 # get the alignment information from the bam file
 rule cnvnator_step1:
     input:
-        bam = "data/{id}.bam",
+        bam = "{PWD}/data/{id}.bam",
         ref = REF
     output:
-        "cnvnator/{id}.root"
+        "{PWD}/cnvnator/{id}.root"
     params:
         config["params"]["cnvnator"]
     shell:
@@ -34,21 +34,21 @@ rule cnvnator_step1:
 
 rule cnvnator_step2:
     input:
-        root = "cnvnator/{id}.root",
+        root = "{PWD}/cnvnator/{id}.root",
         ref = REF
     output:
-        "cnvnator/{id}.cnvnator"
+        "{PWD}/cnvnator/{id}.cnvnator"
     params:
         env = config["params"]["cnvnator"],
         bin_size = bin_size
     shell:
         """
         # Step2生成柱形图 
-        {params.env}/cnvnator -root {input.root} -his {params.bin_size} -fasta {input.ref} -d cnvnator && \
+        {params.env}/cnvnator -root {input.root} -his {params.bin_size} -fasta {input.ref} -d {wildcards.PWD}/cnvnator && \
         # Step3统计量计算
-        {params.env}/cnvnator -root {input.root} -stat {params.bin_size} -d cnvnator  && \
+        {params.env}/cnvnator -root {input.root} -stat {params.bin_size} -d {wildcards.PWD}/cnvnator  && \
         # Step4 RD信号分割
-        {params.env}/cnvnator -root {input.root} -partition {params.bin_size} -ngc -d cnvnator  && \
+        {params.env}/cnvnator -root {input.root} -partition {params.bin_size} -ngc -d {wildcards.PWD}/cnvnator  && \
         {params.env}/cnvnator -root {input.root} -call {params.bin_size} -ngc > {output}
         """
 
@@ -67,15 +67,15 @@ rule cnvnator_step2:
 
 rule cnvnator_step3:
     input:
-        cnvroot = "cnvnator/{id}.cnvnator",
+        cnvroot = "{PWD}/cnvnator/{id}.cnvnator",
         ref = REF
     output:
-        "cnvnator/{id}.cnvnator.vcf"
+        "{PWD}/cnvnator/{id}.cnvnator.vcf"
     params:
         env = config["params"]["cnvnator"],
         sample = config['samples']['id'],
         chr = config["params"]["ref_fa_chr"]
     shell:
-        "{params.env}/perl {params.env}/cnvnator2VCF.pl -prefix {params.sample} -reference {input.ref} "
+        "{params.env}/perl {params.env}/cnvnator2VCF.pl -prefix {wildcards.PWD}/{params.sample} -reference {input.ref} "
         "{input.cnvroot} {params.chr} > {output}"
 

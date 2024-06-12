@@ -8,7 +8,8 @@ modules:
     pindel: False
     
 params:
-    smk_path: "/BIGDATA2/gzfezx_shhli_2/software/script/WGS_SV"
+    smk_path: "/BIGDATA2/gzfezx_shhli_2/software/script/WGS_SV_dev_pwd"
+    PWD:
     # paths to tools used by the pipeline
     breakdancer: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/breakseq2/bin"
     cnvnator: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/cnvnator/bin"
@@ -26,7 +27,7 @@ params:
     # ref_fa: "/WORK2/gzfezx_shhli_3/BioDatahub/human_reference/GRCh37/human_g1k_v37.fasta"
     # ref_fa_chr: "/WORK2/gzfezx_shhli_3/BioDatahub/human_reference/GRCh37/GRCh37.chrom"
     # depth of bam file for calling variants
-    depth: 30
+    depth: 7
     read_length: 100
     # insert size for paired-end reads, 500 for the reads length of 100-150bp
     insert_size: 500

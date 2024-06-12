@@ -1,18 +1,33 @@
 
 rule manta_step1_configmanta:
     input:
-        bam = "data/{}.bam".format(config['samples']['id']),
+        bam = "{PWD}/data/{id}.bam",
         ref = REF 
     output:
-        "manta/{id}.manta.vcf.gz"
+        "{PWD}/manta/{id}.manta.vcf.gz"
     params:
         config["params"]['manta']
     threads:
         24
     shell:
         """
-        {params}/python {params}/configManta.py --bam {input.bam} --referenceFasta {input.ref} --runDir manta/ && \
-        {params}/python manta/runWorkflow.py -j 24 && cp manta/results/variants/diploidSV.vcf.gz {output}
+        {params}/python {params}/configManta.py --bam {input.bam} --referenceFasta {input.ref} --runDir {wildcards.PWD}/manta/ && \
+        {params}/python manta/runWorkflow.py -j 24 && cp {wildcards.PWD}/manta/results/variants/diploidSV.vcf.gz {output}
+        """
+
+rule manta_convertInversion:
+    input:
+        vcf = "{PWD}/manta/{id}.manta.vcf.gz",
+        ref = REF
+    output:
+        "{PWD}/manta/{id}.manta.sv.vcf"
+    params:
+        config["params"]['manta']
+    shell:
+        """
+        {params}/python \
+        {params}/convertInversion.py \
+        {params}/samtools {input.ref} {input.vcf} > {output}
         """
 # rule manta_step2_filter:
 #     input:

@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser(description="The script is to .",
 parser.add_argument('--sample_id','-s',type=str,help="sample id",required= True,metavar='')
 parser.add_argument('--output', '-o',type= str,help="the output file",required= True,metavar='')
 parser.add_argument('--input', '-i',type= str,help="the input template of config file",required= True,metavar='')
+parser.add_argument('--path', '-p',type= str,help="the paht of the output file",required= True,metavar='')
 
 def is_last_character_letter(input_string):
     """
@@ -29,6 +30,7 @@ if __name__ == '__main__':
     sample_id=args.sample_id
     output=args.output
     input=args.input
+    path=args.path
     id, read_length, depth = is_last_character_letter(sample_id)
 
     with open(output, 'w') as outf:
@@ -40,5 +42,9 @@ if __name__ == '__main__':
                     print('    depth: '+str(depth),file = outf)
                 elif line.strip(" ").startswith("read_length"):
                     print('    read_length: '+str(read_length),file = outf)
+                elif line.strip(" ").startswith("PWD"):
+                    print('    PWD: '+str(path),file = outf)
+                elif line.strip(" ").startswith("pwd"):
+                    print('pwd='+str(path),file = outf)
                 else:
                     outf.write(line)
