@@ -12,7 +12,7 @@ rule manta_step1_configmanta:
     shell:
         """
         {params}/python {params}/configManta.py --bam {input.bam} --referenceFasta {input.ref} --runDir {wildcards.PWD}/manta/ && \
-        {params}/python manta/runWorkflow.py -j 24 && cp {wildcards.PWD}/manta/results/variants/diploidSV.vcf.gz {output}
+        {params}/python {wildcards.PWD}/manta/runWorkflow.py -j 24 && cp {wildcards.PWD}/manta/results/variants/diploidSV.vcf.gz {output}
         """
 
 rule manta_convertInversion:

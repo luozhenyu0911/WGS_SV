@@ -82,7 +82,7 @@ rule metaSV_merge_vcf:
             "--manta_vcf {input.manta_vcf} "
             "--cnvnator_vcf {input.cnvnatorinput} "
             "--lumpy_vcf {input.lumpyinput} && "
-        "mv metasv/variants.vcf.gz {output.metasv_vcf} && mv metasv/variants.vcf.gz.tbi {output.metasv_vcf}.tbi")
+        "mv {wildcards.PWD}/metasv/variants.vcf.gz {output.metasv_vcf} && mv {wildcards.PWD}/metasv/variants.vcf.gz.tbi {output.metasv_vcf}.tbi")
 
 rule add_genotype_to_metasv_lumpy:
     input:
