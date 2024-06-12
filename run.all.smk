@@ -5,11 +5,7 @@ configfile: "config.yaml"
 # Sort of acts like a global variable so you don't need to always type the whole thing
 REF = config['params']['ref_fa']
 SAMPLE_list = config['samples']['id_list']
-
-# get the PWD for the current run
-import os
-
-PWD = os.getcwd()
+PWD = config['params']['PWD']
 
 # define a function to return target files based on config settings
 def run_all_input(wildcards):

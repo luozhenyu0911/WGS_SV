@@ -1,6 +1,6 @@
 samples:
     # sample or id to use for generating targets
-    id_list: ["HG002_30X"]
+    id_list: ["00115071023M16BFF2","00115091030M19BFF2","00116081415M13BFF2"]
     cram_path: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/20240124_EBV_Dengue/input_all"
 
 modules:
@@ -8,8 +8,9 @@ modules:
     pindel: False
     
 params:
-    smk_path: "/BIGDATA2/gzfezx_shhli_2/software/script/WGS_SV"
+    smk_path: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/script/WGS_SV_mul"
     # paths to tools used by the pipeline
+    PWD: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/20240507_SV/mul_test2"
     breakdancer: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/breakseq2/bin"
     cnvnator: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/cnvnator/bin"
     lumpy: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
@@ -26,7 +27,7 @@ params:
     # ref_fa: "/WORK2/gzfezx_shhli_3/BioDatahub/human_reference/GRCh37/human_g1k_v37.fasta"
     # ref_fa_chr: "/WORK2/gzfezx_shhli_3/BioDatahub/human_reference/GRCh37/GRCh37.chrom"
     # depth of bam file for calling variants
-    depth: 30
+    depth: 7
     read_length: 100
     # insert size for paired-end reads, 500 for the reads length of 100-150bp
     insert_size: 500
