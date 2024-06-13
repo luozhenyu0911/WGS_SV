@@ -94,7 +94,7 @@ rule add_genotype_to_metasv_lumpy:
         # modify_vcf = "metasv/lumpy.vcf.gz",
         metasv_vcf = "{PWD}/{id}/metasv/{id}.SV.vcf.gz"
     output:
-        "{PWD}/{id}/metasv/{id}.lumpy.gt.vcf.gz"
+        "{PWD}/{id}/metasv/{id}.lumpy.gt.vcf"
     params:
         python = config['params']['python3'],
         src = config['params']['smk_path']
@@ -107,7 +107,7 @@ rule add_genotype_to_metasv_manta:
         # modify_vcf = "metasv/manta.vcf.gz",
         metasv_vcf = "{PWD}/{id}/metasv/{id}.SV.vcf.gz"
     output:
-        "{PWD}/{id}/metasv/{id}.manta.gt.vcf.gz"
+        "{PWD}/{id}/metasv/{id}.manta.gt.vcf"
     params:
         python = config['params']['python3'],
         src = config['params']['smk_path']
@@ -118,14 +118,14 @@ rule add_genotype_to_metasv_manta:
 rule rm_bam_done:
     input:
         "{PWD}/{id}/metasv/{id}.SV.vcf.gz",
-        "{PWD}/{id}/metasv/{id}.lumpy.gt.vcf.gz",
-        "{PWD}/{id}/metasv/{id}.manta.gt.vcf.gz"
+        "{PWD}/{id}/metasv/{id}.lumpy.gt.vcf",
+        "{PWD}/{id}/metasv/{id}.manta.gt.vcf"
     output:
         "{PWD}/{id}/{id}_have_done.txt"
     # params:
         # sample = config['samples']['id']
     shell:
-        "rm {wildcards.PWD}/{wildcards.id}/lumpy/{wildcards.id}.*.bam {wildcards.PWD}/data/{wildcards.id}.bam && echo {wildcards.id} have done. > {output}"
+        "rm {wildcards.PWD}/{wildcards.id}/lumpy/{wildcards.id}.*.bam* {wildcards.PWD}/data/{wildcards.id}.bam* && echo {wildcards.id} have done. > {output}"
 
 
 # rule split_vcf_by_svtype:

@@ -1,5 +1,5 @@
 # include the config file
-configfile: "config.yaml"
+# configfile: "config.yaml"
 
 # Define the ref based on the config file
 # Sort of acts like a global variable so you don't need to always type the whole thing
@@ -11,8 +11,8 @@ PWD = config['params']['PWD']
 def run_all_input(wildcards):
 
     run_all_files = []
-    run_all_files.extend([f'{PWD}/{id}/metasv/{id}.manta.gt.vcf.gz' for id in SAMPLE_list])
-    run_all_files.extend([f'{PWD}/{id}/metasv/{id}.lumpy.gt.vcf.gz' for id in SAMPLE_list])
+    run_all_files.extend([f'{PWD}/{id}/metasv/{id}.manta.gt.vcf' for id in SAMPLE_list])
+    run_all_files.extend([f'{PWD}/{id}/metasv/{id}.lumpy.gt.vcf' for id in SAMPLE_list])
     run_all_files.extend([f'{PWD}/{id}/metasv/{id}.SV.vcf.gz' for id in SAMPLE_list])
     run_all_files.extend([f'{PWD}/{id}/{id}_have_done.txt' for id in SAMPLE_list])
     return run_all_files
