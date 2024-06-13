@@ -10,8 +10,8 @@ SAMPLE = config['samples']['id']
 def run_all_input(wildcards):
 
     run_all_files = []
-    run_all_files.append("metasv/{id}.manta.gt.vcf.gz".format(id = config['samples']['id']))
-    run_all_files.append("metasv/{id}.lumpy.gt.vcf.gz".format(id = config['samples']['id']))
+    run_all_files.append("metasv/{id}.manta.gt.vcf".format(id = config['samples']['id']))
+    run_all_files.append("metasv/{id}.lumpy.gt.vcf".format(id = config['samples']['id']))
     run_all_files.append("metasv/{id}.SV.vcf.gz".format(id = config['samples']['id']))
     run_all_files.append("{id}_have_done.txt".format(id = config['samples']['id']))
     return run_all_files

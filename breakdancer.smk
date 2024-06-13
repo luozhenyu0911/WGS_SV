@@ -7,7 +7,7 @@ rule breakdancer_step1:
     params:
         config['params']['breakdancer']
     shell:
-        "{params}/perl {params}/bam2cfg.pl -g -h {input} > {output}"
+        "{params}/perl {params}/bam2cfg.pl {input} > {output}"
 
 rule breakdancer_step2:
     input:
@@ -17,5 +17,5 @@ rule breakdancer_step2:
     params:
         config['params']['breakdancer']
     shell:
-        "{params}/breakdancer-max {input} > {output} && mv *.insertsize_histogram* breakdancer/"
+        "{params}/breakdancer-max {input} > {output}"
 

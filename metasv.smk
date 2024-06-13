@@ -90,7 +90,7 @@ rule add_genotype_to_metasv_lumpy:
         # modify_vcf = "metasv/lumpy.vcf.gz",
         metasv_vcf = "metasv/{id}.SV.vcf.gz"
     output:
-        "metasv/{id}.lumpy.gt.vcf.gz"
+        "metasv/{id}.lumpy.gt.vcf"
     params:
         python = config['params']['python3'],
         src = config['params']['smk_path']
@@ -99,11 +99,11 @@ rule add_genotype_to_metasv_lumpy:
 
 rule add_genotype_to_metasv_manta:
     input:
-        manta_vcf = "manta/{id}.manta.vcf.gz",
+        manta_vcf = "manta/{id}.manta.sv.vcf",
         # modify_vcf = "metasv/manta.vcf.gz",
         metasv_vcf = "metasv/{id}.SV.vcf.gz"
     output:
-        "metasv/{id}.manta.gt.vcf.gz"
+        "metasv/{id}.manta.gt.vcf"
     params:
         python = config['params']['python3'],
         src = config['params']['smk_path']
@@ -113,8 +113,8 @@ rule add_genotype_to_metasv_manta:
 rule done:
     input:
         "metasv/{id}.SV.vcf.gz",
-        "metasv/{id}.lumpy.gt.vcf.gz",
-        "metasv/{id}.manta.gt.vcf.gz"
+        "metasv/{id}.lumpy.gt.vcf",
+        "metasv/{id}.manta.gt.vcf"
     output:
         "{id}_have_done.txt"
     params:

@@ -14,6 +14,22 @@ rule manta_step1_configmanta:
         {params}/python {params}/configManta.py --bam {input.bam} --referenceFasta {input.ref} --runDir manta/ && \
         {params}/python manta/runWorkflow.py -j 24 && cp manta/results/variants/diploidSV.vcf.gz {output}
         """
+
+rule manta_convertInversion:
+    input:
+        vcf = "manta/{id}.manta.vcf.gz",
+        ref = REF
+    output:
+        "manta/{id}.manta.sv.vcf"
+    params:
+        config["params"]['manta']
+    shell:
+        """
+        {params}/python \
+        {params}/convertInversion.py \
+        {params}/samtools {input.ref} {input.vcf} > {output}
+        """
+
 # rule manta_step2_filter:
 #     input:
 #         "manta/{id}.manta.vcf.gz"
