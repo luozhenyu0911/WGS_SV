@@ -6,13 +6,12 @@ rule manta_step1_configmanta:
     output:
         "{PWD}/manta/{id}.manta.vcf.gz"
     params:
-        config["params"]['manta']
-    threads:
-        24
+        env = config["params"]['manta'],
+        threads = config["threads"]
     shell:
         """
-        {params}/python {params}/configManta.py --bam {input.bam} --referenceFasta {input.ref} --runDir {wildcards.PWD}/manta/ && \
-        {params}/python {wildcards.PWD}/manta/runWorkflow.py -j 24 && cp {wildcards.PWD}/manta/results/variants/diploidSV.vcf.gz {output}
+        {params.env}/python {params.env}/configManta.py --bam {input.bam} --referenceFasta {input.ref} --runDir {wildcards.PWD}/manta/ && \
+        {params.env}/python {wildcards.PWD}/manta/runWorkflow.py -j {params.threads} && cp {wildcards.PWD}/manta/results/variants/diploidSV.vcf.gz {output}
         """
 
 rule manta_convertInversion:

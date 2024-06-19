@@ -11,8 +11,8 @@ PWD = config['params']['PWD']
 def run_all_input(wildcards):
 
     run_all_files = []
-    run_all_files.append("{PWD}/metasv/{id}.manta.gt.vcf.gz".format(PWD = PWD, id = SAMPLE))
-    run_all_files.append("{PWD}/metasv/{id}.lumpy.gt.vcf.gz".format(PWD = PWD, id = SAMPLE))
+    run_all_files.append("{PWD}/metasv/{id}.manta.gt.vcf".format(PWD = PWD, id = SAMPLE))
+    run_all_files.append("{PWD}/metasv/{id}.lumpy.gt.vcf".format(PWD = PWD, id = SAMPLE))
     run_all_files.append("{PWD}/metasv/{id}.SV.vcf.gz".format(PWD = PWD, id = SAMPLE))
     run_all_files.append("{PWD}/{id}_have_done.txt".format(PWD = PWD, id = SAMPLE))
     return run_all_files
