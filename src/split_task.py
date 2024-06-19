@@ -1,5 +1,10 @@
-import sys
 from pathlib import Path
+import argparse
+example_text = '''example: python * '''
+parser = argparse.ArgumentParser(description="The script is .",formatter_class= argparse.RawTextHelpFormatter, usage = '%(prog)s [-h]', epilog=example_text)
+
+parser.add_argument('--task_file','-f',type=str,help="", required= True,metavar='')
+parser.add_argument('--num_tasks', '-n',type= int,help="the template of config.yaml",required= True,metavar='')
 
 def split_task(task_file, num_tasks):
     tasks = []
@@ -17,14 +22,19 @@ def split_task(task_file, num_tasks):
     for i, chunk in enumerate(chunks):
         with open(f'{dirname}/work.{i+1}.sh', 'w') as f:
             f.write(f'#!/bin/bash\n')
+            f.write(f'# yhbatch -N 1 -n 24 -p rhenv\n')
             for task in chunk:
-                f.write(f'{task}\n')
+                f.write(f'{task} &\n')
+            f.write(f'wait\n')
     with open(f'{dirname}/work.{num_tasks+1}.sh', 'w') as f:
         f.write(f'#!/bin/bash\n')
+        f.write(f'# yhbatch -N 1 -n 24 -p rhenv\n')
         for task in tasks[num_tasks*chunk_size:]:
-            f.write(f'{task}\n')
+            f.write(f'{task} &\n')
+        f.write(f'wait\n')
 
 if __name__ == '__main__':
-    task_file = sys.argv[1]
-    num_tasks = int(sys.argv[2])
+    args = parser.parse_args()
+    task_file = args.task_file
+    num_tasks = args.num_tasks
     split_task(task_file, num_tasks-1)

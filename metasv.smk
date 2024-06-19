@@ -125,7 +125,7 @@ rule rm_bam_done:
     # params:
         # sample = config['samples']['id']
     shell:
-        "rm {wildcards.PWD}/{wildcards.id}/lumpy/{wildcards.id}.*.bam* {wildcards.PWD}/data/{wildcards.id}.bam* && echo {wildcards.id} have done. > {output}"
+        "rm -f {wildcards.PWD}/{wildcards.id}/lumpy/{wildcards.id}.*.bam* {wildcards.PWD}/data/{wildcards.id}.bam* {wildcards.PWD}/{wildcards.id}/cnvnator/{wildcards.id}.root && echo {wildcards.id} have done. > {output}"
 
 
 # rule split_vcf_by_svtype:
