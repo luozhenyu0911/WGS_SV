@@ -84,6 +84,20 @@ rule metaSV_merge_vcf:
             "--lumpy_vcf {input.lumpyinput} && "
         "mv {wildcards.PWD}/metasv/variants.vcf.gz {output.metasv_vcf} && mv {wildcards.PWD}/metasv/variants.vcf.gz.tbi {output.metasv_vcf}.tbi")
 
+rule metaSV_merge_vcf_filter:
+    input:
+        "{PWD}/metasv/{id}.SV.vcf.gz"
+    output:
+        "{PWD}/metasv/{id}.SV.pass.vcf"
+    params:
+        src = config['params']['smk_path'],
+        sample = config['samples']['id'],
+        env = config['params']['python3']
+    shell:
+        """
+        {params.env} {params.src}/src/VCF_SeparateFilter.py -i {input} -p {wildcards.PWD}/metasv/{params.sample}_pass -o {output}
+        """
+
 rule add_genotype_to_metasv_lumpy:
     input:
         lumpy_vcf = "{PWD}/lumpy/{id}.genotyped.vcf",

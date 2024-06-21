@@ -1,15 +1,11 @@
 samples:
     # sample or id to use for generating targets
-    id: "HG002_30X"
-    cram_path: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/20240124_EBV_Dengue/input_all"
+    id: "HG002_30x"
+    cram_path: "/BIGDATA2/gzfezx_shhli_2/database/All_inhouse_data/all_bam"
 
-modules:
-    # Should snakemake do specific analyses
-    pindel: False
-    
 params:
     smk_path: "/BIGDATA2/gzfezx_shhli_2/software/script/WGS_SV"
-    PWD: ""
+    PWD: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/20240613_SVpipeline/pipeline_test/HG002_30x"
     # paths to tools used by the pipeline
     breakdancer: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/breakseq2/bin"
     cnvnator: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/cnvnator/bin"
@@ -28,7 +24,7 @@ params:
     # ref_fa_chr: "/WORK2/gzfezx_shhli_3/BioDatahub/human_reference/GRCh37/GRCh37.chrom"
     # depth of bam file for calling variants
     depth: 30
-    read_length: 100
+    read_length: 150
     # insert size for paired-end reads, 500 for the reads length of 100-150bp
     insert_size: 500
 
