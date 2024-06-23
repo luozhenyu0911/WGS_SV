@@ -37,7 +37,7 @@ def delete_file(file_path):
         os.remove(file_path)
         logger.info(f"File '{file_path}' has been deleted and will be recreated next time.")
     else:
-        logger.info(f"File '{file_path}' does not exist.")
+        logger.info(f"File '{file_path}' does not exist and will be created.")
             
 def sample_info_dict(sample_infomation_file):
     samp_info_dict = defaultdict(list)
