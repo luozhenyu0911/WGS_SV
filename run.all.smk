@@ -23,7 +23,6 @@ def run_all_input(wildcards):
     else:
         run_all_files.append("metasv_no_pindel/{}.SV.vcf.gz".format(config['samples']['id']))
         run_all_files.append("metasv_no_pindel/{}.SV.pass.vcf".format(config['samples']['id']))
-        run_all_files.append("annotation/{}.SV.pass.annotation.txt".format(config['samples']['id']))
     return run_all_files
 
 
@@ -39,4 +38,3 @@ include: smk_path+"/manta.smk"
 include: smk_path+"/metasv.smk"
 include: smk_path+"/pindel.smk"
 include: smk_path+"/lumpy.smk"
-include: smk_path+"/annotation.smk"

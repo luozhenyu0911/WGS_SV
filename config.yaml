@@ -17,9 +17,6 @@ params:
     metasv: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
     pindel: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/manta/bin"
     samtools: "/WORK/gzfezx_shhli_3/BioSoftware/local/bin"
-    annovar: "/BIGDATA2/gzfezx_shhli_2/software/annovar"
-    annovar_db: "/BIGDATA2/gzfezx_shhli_2/software/annovar/humandb"
-    python3: "/BIGDATA2/gzfezx_shhli_2/miniconda3/envs/cnvnator/bin/python"
     # reference genome
     ref_fa: "/BIGDATA2/gzfezx_shhli_2/USER/luozhenyu/database/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa"
     # depth of bam file for calling variants
