@@ -23,6 +23,7 @@ def open_vcf_file(filename):
 def vcf2bed(vcf_file, bed_file):
     ENDpos =re.compile(r'\bEND=(-?\d+)\b')
     SVLEN =re.compile(r'\bSVLEN=(-?\d+)\b')
+    SVTYPE =re.compile(r'\bSVTYPE=(<?\w+>?)\b')
     with open(bed_file, 'w') as bedf:
     # with open(vcf_file, 'r') as vcff:
         for line in vcf_file:
@@ -30,12 +31,13 @@ def vcf2bed(vcf_file, bed_file):
                 pass
             else:
                 chrom, pos, id, ref, alt, qual, filter, info, *_ = line.strip().split('\t')
+                svtype = SVTYPE.findall(info)[0].strip("<").strip(">")
                 if '<INS>' in alt:
                     sv_len = SVLEN.findall(info)[0]
                     end = str(int(pos) + int(sv_len))
                 else:
                     end = ENDpos.findall(info)[0]
-                print(chrom, pos, end, alt, ".", ".", sep="\t", file=bedf)
+                print(chrom, pos, end, svtype, ".", ".", sep="\t", file=bedf)
 
 if __name__ == '__main__':
     input_vcf = args.input_vcf

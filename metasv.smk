@@ -74,7 +74,7 @@ rule metaSV_merge_vcf:
     run:
         shell(
         "{params.env}/python {params.env}/run_metasv.py "
-            "--reference {input.ref} --sample {wildcards.PWD}/{params.sample} --disable_assembly --num_threads {params.threads} "
+            "--reference {input.ref} --sample {wildcards.PWD}/{params.sample} --disable_assembly --num_threads 2 "
             "--enable_per_tool_output --keep_standard_contigs --mean_read_length {params.readlength} "
             "--outdir {wildcards.PWD}/metasv --workdir {wildcards.PWD}/metasv/tmp_work "
             "--overlap_ratio 0.5 --minsvlen 50 --maxsvlen 10000000 "
@@ -134,7 +134,7 @@ rule done:
     params:
         sample = config['samples']['id']
     shell:
-        "rm {wildcards.PWD}/data/{wildcards.id}.bam* {wildcards.PWD}/cnvnator/{wildcards.id}.root {wildcards.PWD}/lumpy/{wildcards.id}.*.bam && echo {params.sample} have done. > {output}"
+        "rm -f {wildcards.PWD}/data/{wildcards.id}.bam* {wildcards.PWD}/cnvnator/{wildcards.id}.root {wildcards.PWD}/lumpy/{wildcards.id}.*.bam && echo {params.sample} have done. > {output}"
 
 # rule split_vcf_by_svtype:
 #     input:

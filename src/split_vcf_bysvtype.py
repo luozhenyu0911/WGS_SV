@@ -1,6 +1,7 @@
 import sys
 import gzip
 from collections import defaultdict
+import re
 
 def open_vcf_file(filename):
     _vcf_f = None
@@ -11,14 +12,16 @@ def open_vcf_file(filename):
     return _vcf_f
 
 def svtype_dict(vcf_f):
+    # SVTYPE = re.compile(r'(?<=\bSVTYPE=)(?P<svtype>[\w:\-_]+)(?=;)')
+    SVTYPE = re.compile(r'\bSVTYPE=(-?\w+)\b')
     SV_dict = defaultdict(list)
     vcf_header = []
     for line in vcf_f:
         if line.startswith("#"):
             vcf_header.append(line)
         else:
-            chr, pos, id, ref, alt, qual, filter, *_ = line.strip().split("\t")
-            svtype = alt.strip("<").strip(">")
+            chr, pos, id, ref, alt, qual, filter, info, *_ = line.strip().split("\t")
+            svtype = SVTYPE.findall(info)[0]
             SV_dict[svtype].append(line)
     return SV_dict, vcf_header
 

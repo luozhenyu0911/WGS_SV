@@ -12,9 +12,12 @@ parser = argparse.ArgumentParser(description="The script is to .",
                                 usage = '%(prog)s [-h]',                         
                                 epilog=example_text)
 
+parser.add_argument('--version', action='version', version='%(prog)s 20240627')
 parser.add_argument('--path','-p',type=str,help="the path of the log files",required= True,metavar='')
 parser.add_argument('--completed_tasks','-c',type=str,help="the completed tasks file",required= True,metavar='')
 parser.add_argument('--err_log','-e',type=str,help="the error log file",required= True,metavar='')
+parser.add_argument('--delete_snakemake_dir', action='store_true', default=False, help='remove the .snakemake directory [default: False]')
+parser.add_argument('--delete_data', action='store_true', default=False, help='remove the data  or manta directory [default: False]')
 args = parser.parse_args()
 
 # logging.basicConfig(level=logging.INFO)
@@ -53,6 +56,7 @@ def delete_file(file_list):
     for file_path in file_list:
         if os.path.exists(file_path):
             os.remove(file_path)
+            print(f"warning: you have rm the {file_path} file.")
             
 import shutil
 
@@ -62,6 +66,7 @@ def delete_directory(directory_path):
     """
     try:
         shutil.rmtree(directory_path)
+        print(f'warning: you have rm the {directory_path} directory.')
     except Exception as e:
         pass
 
@@ -73,8 +78,46 @@ def rename_file(old_file_path, new_file_path):
             os.rename(old_file_path, new_file_path)
         except Exception as e:
             pass
+
+def rm_undone_Data_Manta_dir(path, sampleid):
+    breakdancer_dir = os.path.join(path, "breakdancer")
+    cnvnator_dir = os.path.join(path, "cnvnator")
+    lumpy_dir = os.path.join(path, "lumpy")
+    manta_dir = os.path.join(path, "manta")
+
+    breakdancer_file = sampleid + ".cfg.SV.output"
+    cnvnator_file = sampleid + ".cnvnator.vcf"
+    lumpy_file = sampleid + ".genotyped.vcf"
+    manta_file = sampleid + ".manta.vcf.gz"
+    if (validate_done_file(breakdancer_dir, breakdancer_file) and 
+        validate_done_file(cnvnator_dir, cnvnator_file) and 
+        validate_done_file(lumpy_dir, lumpy_file) and 
+        validate_done_file(manta_dir, manta_file)):
+        delete_directory(os.path.join(path, 'data'))
+    if validate_done_file(manta_dir, manta_file):
+        pass
+    else:
+        delete_directory(os.path.join(path, 'manta'))
+        
+    lumpy_splitters_unsortbam = sampleid + ".splitters.unsorted.bam"
+    lumpy_splitters_bam = sampleid + ".splitters.bam"
+    lumpy_discordants_unsortbam = sampleid + ".discordants.unsorted.bam"
+    lumpy_discordants_bam = sampleid + ".discordants.bam"
+    lumpy_vcf = sampleid + ".lumpy.vcf"
+    if not validate_done_file(lumpy_dir, lumpy_vcf):
+        delete_directory(lumpy_dir)
+        
+    breaddancer_res = sampleid + ".cfg"
+    if not validate_done_file(breakdancer_dir, breakdancer_file):
+        delete_directory(breakdancer_dir)
+        
+    if not validate_done_file(cnvnator_dir, cnvnator_file):
+        delete_directory(cnvnator_dir)
     
-def check_done_tasks(log_file_path, err_log, completed_tasks):
+    
+    
+        
+def check_done_tasks(log_file_path, err_log, completed_tasks, delete_snakemake_dir=False, delete_data=False):
     err_log_path = open(err_log, 'a')
     completed_tasks_path = open(completed_tasks, 'a')
     print(file=err_log_path)
@@ -88,6 +131,7 @@ def check_done_tasks(log_file_path, err_log, completed_tasks):
             if line.strip().startswith('Command') and 'completed' in line:
                 cmd = line.strip().split(" ")[2]
                 path = os.path.dirname(cmd)
+                sampleid = path.split("/")[-1]
                 file_name = path.split("/")[-1]+"_have_done.txt"
                 log_dir = os.path.dirname(log_file_path)
                 # check if the "done" file exists in the directory
@@ -97,21 +141,32 @@ def check_done_tasks(log_file_path, err_log, completed_tasks):
                     print(f'{log_dir.split("/")[-1]}: {path}', file=completed_tasks_path)
                     old_snakemake_err_txt = os.path.join(path, 'snakemake.err.txt')
                     new_snakemake_err_txt = os.path.join(path, 'snakemake.err.1.txt')
-                    rename_file(old_snakemake_err_txt, new_snakemake_err_txt)
+                    if os.path.exists(new_snakemake_err_txt):
+                        pass
+                    else:
+                        rename_file(old_snakemake_err_txt, new_snakemake_err_txt)
                 else:
                     print(f"{task_name} has completed in {node}, but {file_name} does not exist in {path}, pls check the following directory.", file=err_log_path)
                     print(f"cd {path}", file=err_log_path)
                     _need_delete_dir = os.path.join(path, '.snakemake')
-                    delete_directory(_need_delete_dir)
+                    if delete_snakemake_dir:
+                        delete_directory(_need_delete_dir)
+                    if delete_data:
+                        rm_undone_Data_Manta_dir(path, sampleid)
                     # output the errored tasks to the error task file
                     if "30x" in log_file_path:
                         err_task_file = "30x_err_task.sh"
                         with open(err_task_file, 'a') as f:
                             print(f'sh {cmd}', file=f)
-                    if "7x" in log_file_path:
+                    elif "7x" in log_file_path:
                         err_task_file = "7x_err_task.sh"
                         with open(err_task_file, 'a') as f:
                             print(f'sh {cmd}', file=f)
+                    else:
+                        err_task_file = "all_err_task.sh"
+                        with open(err_task_file, 'a') as f:
+                            print(f'sh {cmd}', file=f)
+
             if line.startswith('end'):
                 time1 = line.split('=')[1].strip()
             elif line.strip().startswith('start'):
@@ -133,7 +188,18 @@ def check_done_tasks(log_file_path, err_log, completed_tasks):
 if __name__ == '__main__':
     print('Warning: you need to whether to quit the jobs of the remaining tasks in the error log file, because 30x_err_task.sh and 7x_err_task.sh will be rewrited')
     log_list = glob.glob(os.path.join(args.path, '**', 'slurm*.out'), recursive=True)
-    delete_file([args.err_log, args.completed_tasks, "30x_err_task.sh", "7x_err_task.sh"])
-    for log_file in log_list:
-        check_done_tasks(log_file, args.err_log, args.completed_tasks)
+    delete_file([args.err_log, args.completed_tasks, "30x_err_task.sh", "7x_err_task.sh", "all_err_task.sh"])
+    if args.delete_snakemake_dir:
+        for log_file in log_list:
+            check_done_tasks(log_file, args.err_log, args.completed_tasks, delete_snakemake_dir=True)
+    elif args.delete_data:
+        for log_file in log_list:
+            check_done_tasks(log_file, args.err_log, args.completed_tasks, delete_data=True)
+    
+    elif args.delete_snakemake_dir and args.delete_data:
+        for log_file in log_list:
+            check_done_tasks(log_file, args.err_log, args.completed_tasks, delete_snakemake_dir=True, delete_data=True)
+    else:
+        for log_file in log_list:
+            check_done_tasks(log_file, args.err_log, args.completed_tasks)
         
