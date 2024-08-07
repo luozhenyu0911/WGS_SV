@@ -1,7 +1,13 @@
 def get_bin_size(depth):
+    '''
+    Specifically, given the same data quality and read length, we observed that the optimal bin size,
+    and thus breakpoint resolution accuracy, scales roughly inversely with the coverage, 
+    resulting in ~100-bp bins for 20-30x coverage, ~500-bp bins for 4-6x coverage, and ~30-bp bins for ~100x coverage.
+    https://genome.cshlp.org/content/21/6/974.full
+    '''
     if 100 >= depth >60:
         bin_size = 30
-    elif 50 >= depth > 40:
+    elif 60 >= depth > 40:
         bin_size = 50
 
     elif 40 >= depth > 10:
@@ -13,11 +19,20 @@ def get_bin_size(depth):
         bin_size = 1000
     return bin_size
 
-if str(config["params"]["depth"]).isdigit():
-    bin_size = get_bin_size(int(config["params"]["depth"]))
+import ast
+
+def is_number(s):
+    try:
+        ast.literal_eval(str(s))
+        return True
+    except (ValueError, SyntaxError):
+        return False
+
+if is_number(config["params"]["depth"]):
+    bin_size = get_bin_size(float(config["params"]["depth"]))
 else:
     depth = config["params"]["depth"].strip("x")
-    depth = int(depth.strip("X"))
+    depth = float(depth.strip("X"))
     bin_size = get_bin_size(depth)
 
 # get the alignment information from the bam file

@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description="The script is to .",
                                 usage = '%(prog)s [-h]',                         
                                 epilog=example_text)
 
-parser.add_argument('--sample_infomation','-i',type=str,help="the sample information file",required= True,metavar='')
+parser.add_argument('--sample_infomation','-i',type=str,help="the sample information file, colnames: sample_name, depth, read_length,**",required= True,metavar='')
 parser.add_argument('--config_yaml', '-c',type= str,help="the config.yaml file template",required= True,metavar='')
 parser.add_argument('--run_snakemake_sh', '-r',type= str,help="the run_snakemake.sh file template",required= True,metavar='')
 parser.add_argument('--PWD', '-p',type= str,help="the current working directory",required= True,metavar='')
@@ -40,11 +40,15 @@ def delete_file(file_path):
         logger.info(f"File '{file_path}' does not exist and will be created.")
             
 def sample_info_dict(sample_infomation_file):
+    """
+    convert the sample information file to a dictionary
+    """
     samp_info_dict = defaultdict(list)
     with open(sample_infomation_file, 'r') as f:
         for line in f:
-            lines = line.strip().split('\t')
-            samp_info_dict[lines[0].strip()].extend([lines[1].strip('X'), lines[2].strip('bp')] )
+            if not line.startswith('#'):
+                lines = line.strip().split('\t')
+                samp_info_dict[lines[0].strip()].extend([lines[1].strip('X'), lines[2].strip('bp')] )
         return samp_info_dict
 
 def change_config_file(path, samplename, depth, read_length, run_snakemake_sh_file, config_yaml_file):
@@ -74,6 +78,10 @@ def change_config_file(path, samplename, depth, read_length, run_snakemake_sh_fi
     
 
 def create_all_dirs_files(samp_info_dict, pwd, config_yaml_file, run_snakemake_sh_file):
+    '''
+    splitting the script into two parts by depth of bam files, 
+    inorder to run the pipeline faster by considering how many jobs took to run in parallel.
+    '''
     output_dir = os.path.join(pwd, 'output/01_SV_calling')
     shell_dir = os.path.join(pwd, 'shell')
     dir_7x = os.path.join(shell_dir, '7x')
@@ -89,12 +97,12 @@ def create_all_dirs_files(samp_info_dict, pwd, config_yaml_file, run_snakemake_s
         read_length = samp_info_dict[sample][1].strip('bp')
         change_config_file(sample_dir, sample, depth, read_length, run_snakemake_sh_file, config_yaml_file)
     # create all file in shell
-        if 0 < int(depth) <= 7:
+        if 0 < float(depth) <= 10:
             
             with open(os.path.join(dir_7x, 'all_7x.sh'), 'a') as outf:
                 _run_name = os.path.join(sample_dir, str(sample) + '_' + 'run_snakemake.sh')
                 print(f'sh {_run_name}', file = outf)
-        elif 7 < int(depth) <= 30:
+        elif 10 < float(depth):
             
             with open(os.path.join(dir_30x, 'all_30x.sh'), 'a') as outf:
                 _run_name = os.path.join(sample_dir, str(sample) + '_' + 'run_snakemake.sh')

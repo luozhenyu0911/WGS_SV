@@ -71,11 +71,15 @@ def make_info_bam(path, suffix, output_file, read_length):
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    path = args.path
+    paths = (args.path).strip().split(",")
     suffix = args.suffix
     output_file = args.output_file
     if args.read_length:
         read_length = args.read_length
     else:
         read_length = False
-    make_info_bam(path, suffix, output_file, read_length)
+    for path in paths:
+        if not os.path.exists(path):
+            print("The path {} does not exist".format(path))
+        else:
+            make_info_bam(path, suffix, output_file, read_length)

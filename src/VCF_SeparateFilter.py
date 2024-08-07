@@ -98,8 +98,10 @@ for SVtype in SVtypes_dict:
         outf.writelines(annotation)
         outf.writelines(SVtypes_dict[SVtype])
     with open(prefix + "." + SVtype.strip("<").strip(">") + ".bed", 'w') as bedf:
-        ENDpos =re.compile(r'(?<=\bEND=)(?P<end>\d+)')
-        SVLEN =re.compile(r'\bSVLEN=(-?\d+)\D')
+        # ENDpos =re.compile(r'(?<=\bEND=)(?P<end>\d+)')
+        ENDpos =re.compile(r'\bEND=(-?\d+)\b')
+        SVLEN =re.compile(r'\bSVLEN=(-?\d+)\b')
+        SVTYPE = re.compile(r'\bSVTYPE=(-?\w+)\b')
         for line in SVtypes_dict[SVtype]:
             if line.startswith('#'):
                 pass
