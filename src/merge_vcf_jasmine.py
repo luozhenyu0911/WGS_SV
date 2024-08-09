@@ -19,6 +19,15 @@ parser.add_argument('--input_vcf','-i',type=str,help="",required= True,metavar='
 parser.add_argument('--overlap_ratio', '-r',type= str,help="",required= True,metavar='')
 parser.add_argument('--output_vcf', '-o',type= str,help="",required= True,metavar='')
 
+def open_vcf_file(filename):
+    import gzip
+    _vcf_f = None
+    if filename.endswith(".gz"):
+        _vcf_f = gzip.open(filename, "rt")
+    else:
+        _vcf_f = open(filename, "r")
+    return _vcf_f
+
 def line_parser(line):
     end =re.compile(r'\bEND=(-?\d+)\D')
     svlen =re.compile(r'\bSVLEN=(-?\d+)\D')
@@ -95,15 +104,16 @@ if __name__ == '__main__':
     overlap_ratio = float(args.overlap_ratio)
     output_vcf = args.output_vcf
     
-    with open(input_vcf, 'r') as f:
-        pass_line = []
-        for line in f:
-            if line.startswith('#'):
-                pass_line.append(line.strip())
-            else:
-                baseline = line.strip()
-                break
-        pass_line = combine_line(f, baseline, pass_line, overlap_ratio)
+    f = open_vcf_file(input_vcf)
+    pass_line = []
+    for line in f:
+        if line.startswith('#'):
+            pass_line.append(line.strip())
+        else:
+            baseline = line.strip()
+            break
+    pass_line = combine_line(f, baseline, pass_line, overlap_ratio)
+    f.close()
 
     with open(output_vcf, 'w') as f:
         for line in pass_line:
